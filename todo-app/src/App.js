@@ -1,23 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+// // src/App.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function App() {
+  const [todos, setTodos] = useState([]);
+  const [newTodo, setNewTodo] = useState('');
+
+  useEffect(() => {
+    // Fetch todos from the backend when the component mounts
+    axios.get('http://localhost:5000/api/todos')
+      .then(response => setTodos(response.data))
+      .catch(error => console.error('Error fetching todos:', error));
+  }, []);
+
+  const addTodo = () => {
+    // Add a new todo to the backend
+    axios.post('http://localhost:5000/api/todos', { text: newTodo })
+      .then(response => {
+        setTodos([...todos, response.data]);
+        setNewTodo('');
+      })
+      .catch(error => console.error('Error adding todo:', error));
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Todo List</h1>
+      <ul>
+        {todos.map(todo => (
+          <li key={todo._id}>{todo.text}</li>
+        ))}
+      </ul>
+      <div>
+        <input
+          type="text"
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+        />
+        <button onClick={addTodo}>Add Todo</button>
+      </div>
     </div>
   );
 }
